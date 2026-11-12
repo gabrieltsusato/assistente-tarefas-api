@@ -1,0 +1,33 @@
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: assistente-tarefas-postgres
+    environment:
+      POSTGRES_DB: assistente_tarefas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d assistente_tarefas"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: assistente-tarefas-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@assistente.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
